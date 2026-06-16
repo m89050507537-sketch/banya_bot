@@ -1,7 +1,7 @@
 import os
 from max_chatbot_python import GreenAPIBot, Notification
 
-# Токен берется из переменных окружения, которые вы задали в панели Bothost
+# Токен берется из переменных окружения
 MAX_TOKEN = os.getenv("MAX_TOKEN")
 bot = GreenAPIBot(MAX_TOKEN)
 
