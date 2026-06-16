@@ -1,1 +1,1 @@
-max-api-client-python
+requests
