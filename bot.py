@@ -1,61 +1,54 @@
 import os
-import requests
-import time
+from max_api_client_python import MaxApiClient
 
 MAX_TOKEN = os.getenv("MAX_TOKEN")
-API_URL = "https://api.max.ru/bot/v1/"
+
+# Инициализация клиента
+client = MaxApiClient(token=MAX_TOKEN)
 
 def send_message(chat_id, text):
-    """Отправка сообщения через API MAX"""
-    url = f"{API_URL}sendMessage"
-    payload = {
-        "chatId": chat_id,
-        "text": text
-    }
-    headers = {
-        "Authorization": f"Bearer {MAX_TOKEN}",
-        "Content-Type": "application/json"
-    }
+    """Отправка сообщения через официальный SDK"""
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        return response.json()
+        response = client.messages.send(
+            chat_id=chat_id,
+            text=text
+        )
+        return response
     except Exception as e:
         print(f"Ошибка отправки: {e}")
         return None
 
 def get_updates():
-    """Получение новых сообщений"""
-    url = f"{API_URL}getUpdates"
-    headers = {"Authorization": f"Bearer {MAX_TOKEN}"}
+    """Получение новых сообщений через официальный SDK"""
     try:
-        response = requests.get(url, headers=headers)
-        return response.json().get("result", [])
+        updates = client.updates.get()
+        return updates.get("updates", [])
     except Exception as e:
-        print(f"Ошибка получения сообщений: {e}")
+        print(f"Ошибка получения: {e}")
         return []
 
-# Главный цикл бота
 def main():
-    print("Бот запущен и работает!")
-    processed_ids = set()
+    print("✅ Бот Банный Мир Воронеж запущен!")
+    last_update_id = 0
     
     while True:
         try:
             updates = get_updates()
             for update in updates:
-                # Проверяем, есть ли сообщение
+                update_id = update.get("update_id", 0)
+                if update_id <= last_update_id:
+                    continue
+                last_update_id = update_id
+                
                 if "message" in update:
                     msg = update["message"]
                     chat_id = msg.get("chat", {}).get("id")
                     text = msg.get("text", "").lower().strip()
                     
-                    # Проверяем, обработано ли уже это сообщение
-                    message_id = update.get("update_id")
-                    if message_id in processed_ids:
+                    if not chat_id:
                         continue
-                    processed_ids.add(message_id)
                     
-                    # Обработка команд
+                    # Приветствие
                     if text in ["привет", "здравствуйте", "начать", "/start"]:
                         send_message(chat_id,
                             "Добро пожаловать в Банный Мир Воронеж! 🧖‍♂️\n\n"
@@ -65,6 +58,7 @@ def main():
                             "3 - Адрес и контакты\n"
                             "4 - Акции"
                         )
+                    # Запись
                     elif text == "1":
                         send_message(chat_id,
                             "📝 Для бронирования укажите:\n\n"
@@ -75,6 +69,7 @@ def main():
                             "5. Ваш телефон:\n\n"
                             "Менеджер свяжется для подтверждения."
                         )
+                    # Цены
                     elif text == "2":
                         send_message(chat_id,
                             "💰 Стоимость саун (до 6 человек):\n\n"
@@ -86,6 +81,7 @@ def main():
                             "• Чан с водой: 500 ₽\n\n"
                             "Акция: утренние часы (10:00-14:00) — скидка 15%!"
                         )
+                    # Адрес
                     elif text == "3":
                         send_message(chat_id,
                             "📍 Банный Мир Воронеж\n"
@@ -94,6 +90,7 @@ def main():
                             "📞 +7 (473) 123-45-67\n"
                             "Режим работы: ежедневно 10:00 – 02:00"
                         )
+                    # Акции
                     elif text == "4":
                         send_message(chat_id,
                             "🎉 Специальные предложения:\n\n"
@@ -112,8 +109,11 @@ def main():
                         )
         except Exception as e:
             print(f"Ошибка в цикле: {e}")
+            import time
+            time.sleep(5)
         
-        time.sleep(1)  # Пауза 1 секунда
+        import time
+        time.sleep(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
