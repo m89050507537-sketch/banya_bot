@@ -1,20 +1,19 @@
 import os
-from max_chatbot_python import GreenAPIBot, Notification
+from max import Max
 
-# Правильно: передаём НАЗВАНИЯ переменных, а не их значения
-MAX_ACCOUNT_ID = os.getenv("MAX_ACCOUNT_ID")
+# Токен берётся из переменных окружения
 MAX_TOKEN = os.getenv("MAX_TOKEN")
 
-bot = GreenAPIBot(MAX_ACCOUNT_ID, MAX_TOKEN)
+# Инициализация бота
+bot = Max(MAX_TOKEN)
 
-@bot.router.message(text_message="message")
-def handle_message(notification: Notification) -> None:
-    user_id = notification.sender
-    text = notification.message_data.text.lower().strip()
+@bot.on_message()
+def handle_message(message):
+    text = message.text.lower().strip()
     
     # Приветствие
     if text in ["привет", "здравствуйте", "начать", "/start"]:
-        notification.answer(
+        message.reply(
             "Добро пожаловать в Банный Мир Воронеж! 🧖‍♂️\n\n"
             "Выберите действие:\n"
             "1 - Записаться в сауну\n"
@@ -25,7 +24,7 @@ def handle_message(notification: Notification) -> None:
     
     # Запись
     elif text == "1":
-        notification.answer(
+        message.reply(
             "📝 Для бронирования укажите:\n\n"
             "1. Какую сауну? (Финская / Русская / Хаммам)\n"
             "2. Дата и время (например: 20.06, 19:00)\n"
@@ -37,7 +36,7 @@ def handle_message(notification: Notification) -> None:
     
     # Цены
     elif text == "2":
-        notification.answer(
+        message.reply(
             "💰 Стоимость саун (до 6 человек):\n\n"
             "• Финская: 1500 ₽/час (будни), 2000 ₽/час (выходные)\n"
             "• Русская парная: 1800 ₽/час (будни), 2400 ₽/час (выходные)\n"
@@ -50,7 +49,7 @@ def handle_message(notification: Notification) -> None:
     
     # Адрес
     elif text == "3":
-        notification.answer(
+        message.reply(
             "📍 Банный Мир Воронеж\n"
             "г. Воронеж, ул. Примерная, д. 15\n\n"
             "🚗 Схема проезда: с Московского проспекта поворот на ул. Ленина\n\n"
@@ -60,7 +59,7 @@ def handle_message(notification: Notification) -> None:
     
     # Акции
     elif text == "4":
-        notification.answer(
+        message.reply(
             "🎉 Специальные предложения:\n\n"
             "• Утренние часы (10:00-14:00) — скидка 15%\n"
             "• Продление часа — скидка 20%\n"
@@ -68,7 +67,7 @@ def handle_message(notification: Notification) -> None:
         )
     
     else:
-        notification.answer(
+        message.reply(
             "Не понял Вас 😊\n\n"
             "Напишите:\n"
             "1 - Записаться\n"
@@ -78,4 +77,4 @@ def handle_message(notification: Notification) -> None:
         )
 
 if __name__ == '__main__':
-    bot.run_forever()
+    bot.run()
