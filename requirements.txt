@@ -1,1 +1,1 @@
-max-python-sdk
+max-api-client-python
