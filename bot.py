@@ -1,9 +1,13 @@
 import os
 from max_chatbot_python import GreenAPIBot, Notification
 
-# Токен берется из переменных окружения
+# Важно! Нужно передавать ID аккаунта и токен
+# ID аккаунта можно найти в личном кабинете MAX для бизнеса
+MAX_ACCOUNT_ID = os.getenv("MAX_ACCOUNT_ID")  # Например: "1234567890"
 MAX_TOKEN = os.getenv("MAX_TOKEN")
-bot = GreenAPIBot(MAX_TOKEN)
+
+# Правильная инициализация с двумя аргументами
+bot = GreenAPIBot(MAX_ACCOUNT_ID, MAX_TOKEN)
 
 @bot.router.message(text_message="message")
 def handle_message(notification: Notification) -> None:
